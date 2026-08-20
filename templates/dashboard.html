@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Analitik — KopiVision</title>
+  <meta name="description" content="Dashboard analitik performa model klasifikasi biji kopi MobileNetV2." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+  <style>
+    .dashboard-header {
+      text-align: center;
+      margin: 40px 0 30px;
+    }
+
+    .dashboard-header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-top: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card-custom {
+      text-align: center;
+      padding: 24px !important;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card-custom:hover {
+      transform: translateY(-5px);
+      border-color: var(--glass-border-hover);
+      box-shadow: var(--shadow-glow), var(--shadow-card);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .card-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--color-amber);
+      margin-bottom: 6px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .card-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card-detail {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-container {
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+
+    .training-plot-img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .placeholder-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.6;
+      }
+
+      50% {
+        transform: scale(1.08);
+        opacity: 1;
+      }
+    }
+
+    .metric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      text-align: left;
+    }
+
+    .metric-table th,
+    .metric-table td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .metric-table th {
+      color: var(--color-amber);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .metric-table td {
+      font-size: 0.85rem;
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-green {
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-yellow {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Splash Screen ── -->
+  <div id="splash-screen">
+    <div class="splash-logo">☕</div>
+    <div class="splash-title">KopiVision</div>
+    <div class="splash-subtitle">Sistem Klasifikasi Jenis Biji Kopi Berbasis AI</div>
+    <div class="splash-loader">
+      <div class="splash-loader-bar"></div>
+    </div>
+  </div>
+
+  <!-- ── Navbar ── -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <span class="nav-brand-icon">☕</span>
+      <span class="nav-brand-text">KopiVision</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/" class="active">Dashboard</a></li>
+      <li><a href="/klasifikasi">Mulai Klasifikasi</a></li>
+      <li><a href="/about">Informasi Kopi</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Page Content ── -->
+  <div class="page-wrapper">
+
+    <!-- Content centered inside main-content just like other pages -->
+    <div class="main-content" style="max-width: 1100px; margin: 0 auto;">
+
+      <!-- Header -->
+      <div class="dashboard-header">
+        <h1>Dashboard <span
+            style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Analitis
+            Model</span></h1>
+        <p style="color: var(--text-secondary); margin-top: 8px;">
+          Laporan statistik performa model CNN MobileNetV2 dan distribusi data pelatihan.
+        </p>
+      </div>
+
+      <!-- Stats Grid (Using structured glass-card styling) -->
+      <div class="stats-grid">
+        <!-- Stat 1 -->
+        <div class="glass-card stat-card-custom">
+          <span class="card-icon">🎯</span>
+          <div class="card-value">{{ stats.accuracy }}</div>
+          <div class="card-label">Test Accuracy</div>
+          <div class="card-detail">Hasil Evaluasi Data Uji</div>
+        </div>
+        <!-- Stat 2 -->
+        <div class="glass-card stat-card-custom">
+          <span class="card-icon">📉</span>
+          <div class="card-value">{{ stats.loss }}</div>
+          <div class="card-label">Test Loss</div>
+          <div class="card-detail">Tingkat Error Evaluasi</div>
+        </div>
+        <!-- Stat 3 -->
+        <div class="glass-card stat-card-custom">
+          <span class="card-icon">🗂️</span>
+          <div class="card-value">{{ stats.total_samples }}</div>
+          <div class="card-label">Total Gambar</div>
+          <div class="card-detail">Train: {{ stats.train_samples }} | Val: {{ stats.val_samples }} | Test: {{
+            stats.test_samples }}</div>
+        </div>
+        <!-- Stat 4 -->
+        <div class="glass-card stat-card-custom">
+          <span class="card-icon">⚙️</span>
+          <div class="card-value">{{ stats.epochs_init }} + {{ stats.epochs_ft }}</div>
+          <div class="card-label">Epoch Maksimal</div>
+          <div class="card-detail">Fase 1: {{ stats.epochs_init }} | Fase 2: {{ stats.epochs_ft }} (FT)</div>
+        </div>
+      </div>
+
+      <!-- Layout Grid -->
+      <div class="grid-layout">
+
+        <!-- Left: Training Curve -->
+        <div class="glass-card">
+          <div class="section-title" style="margin-bottom: 20px;">
+            <div class="section-title-icon">📈</div>
+            Grafik Hasil Pelatihan & Confusion Matrix
+          </div>
+
+          <div class="chart-container">
+            {% if stats.plot_exists %}
+            <img src="/model/plot" alt="Kurva Hasil Pelatihan dan Confusion Matrix" class="training-plot-img" />
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px; text-align: center;">
+              Gambar di atas memuat grafik Akurasi per Epoch, Loss per Epoch, serta Confusion Matrix pada data uji.
+            </p>
+            {% else %}
+            <div class="placeholder-icon">⏳</div>
+            <h3 style="color: var(--text-primary); margin-bottom: 8px;">Grafik Pelatihan Belum Siap</h3>
+            <p
+              style="font-size: 0.85rem; color: var(--text-secondary); text-align: center; max-width: 450px; line-height: 1.5; margin-bottom: 20px;">
+              File grafik <strong>model/hasil_training.png</strong> tidak ditemukan. Jalankan seluruh sel pada notebook
+              <strong>train.ipynb</strong> untuk melatih model dan menghasilkan grafik otomatis.
+            </p>
+            <span class="badge-status badge-yellow">Menunggu Hasil Training</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Right: Model Details -->
+        <div class="glass-card">
+          <div class="section-title" style="margin-bottom: 20px;">
+            <div class="section-title-icon">🧠</div>
+            Spesifikasi Model
+          </div>
+
+          <div style="font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary);">
+            <p style="margin-bottom: 12px;">
+              Model klasifikasi biji kopi dibangun menggunakan arsitektur <strong>MobileNetV2</strong> yang dimuat
+              dengan bobot latih <strong>ImageNet</strong>.
+            </p>
+            <div class="divider" style="margin: 15px 0;"></div>
+
+            <table class="metric-table">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Nilai</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Base Model</td>
+                  <td>MobileNetV2</td>
+                </tr>
+                <tr>
+                  <td>Optimizer</td>
+                  <td>Adam</td>
+                </tr>
+                <tr>
+                  <td>Learning Rate (Awal)</td>
+                  <td>1e-4</td>
+                </tr>
+                <tr>
+                  <td>Learning Rate (FT)</td>
+                  <td>1e-5</td>
+                </tr>
+                <tr>
+                  <td>Unfrozen Layers</td>
+                  <td>100 Layer Terakhir</td>
+                </tr>
+                <tr>
+                  <td>Batch Size</td>
+                  <td>32</td>
+                </tr>
+                <tr>
+                  <td>Ukuran Gambar</td>
+                  <td>224 × 224 piksel</td>
+                </tr>
+                <tr>
+                  <td>Status Model</td>
+                  <td>
+                    {% if stats.plot_exists %}
+                    <span class="badge-status badge-green">Telah Dilatih</span>
+                    {% else %}
+                    <span class="badge-status badge-yellow">Siap Dilatih</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer
+    style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 60px;">
+    <p>© 2026 KopiVision · Sistem Klasifikasi Jenis Biji Kopi Berbasis AI</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

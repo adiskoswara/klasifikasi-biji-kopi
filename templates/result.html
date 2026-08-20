@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hasil Klasifikasi — KopiVision</title>
+  <meta name="description" content="Hasil klasifikasi jenis biji kopi menggunakan model CNN MobileNetV2." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <span class="nav-brand-icon">☕</span>
+    <span class="nav-brand-text">KopiVision</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/klasifikasi">Mulai Klasifikasi</a></li>
+    <li><a href="/about">Informasi Kopi</a></li>
+  </ul>
+</nav>
+
+<!-- ── Page Content ── -->
+<div class="page-wrapper">
+
+  <!-- Result Hero -->
+  <section class="result-hero">
+    <div id="result-icon" class="result-icon">☕</div>
+    <h1 id="result-class-name" class="result-class-name">—</h1>
+    <p id="result-latin" class="result-latin">—</p>
+  </section>
+
+  <!-- Main Content -->
+  <div class="main-content" style="max-width: 900px;">
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+
+      <!-- ── Left: Image Preview + Confidence ── -->
+      <div>
+
+        <!-- Image Preview -->
+        <div class="glass-card" style="padding: 16px; margin-bottom: 20px;">
+          <div class="section-title">
+            <div class="section-title-icon">🖼️</div>
+            Gambar yang Dianalisis
+          </div>
+          <div style="border-radius:12px; overflow:hidden; background:rgba(0,0,0,0.3);">
+            <img id="result-preview-img"
+                 src=""
+                 alt="Gambar biji kopi yang diklasifikasi"
+                 style="width:100%; max-height:260px; object-fit:contain; display:none; border-radius:12px;" />
+            <div id="no-preview"
+                 style="display:flex; align-items:center; justify-content:center; height:200px; color:var(--text-muted); flex-direction:column; gap:8px;">
+              <span style="font-size:2.5rem;">🖼️</span>
+              <span style="font-size:0.85rem;">Dari kamera langsung</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confidence Score -->
+        <div class="glass-card">
+          <div class="section-title">
+            <div class="section-title-icon">📊</div>
+            Tingkat Keyakinan
+          </div>
+
+          <div class="confidence-wrapper">
+            <div class="confidence-header">
+              <span class="confidence-label">Confidence Score</span>
+              <span id="confidence-value" class="confidence-value">0%</span>
+            </div>
+            <div class="confidence-bar-track">
+              <div id="confidence-bar" class="confidence-bar-fill" style="width:0%"></div>
+            </div>
+            <div style="text-align:center; margin-top:12px;">
+              <span id="confidence-level-badge" class="confidence-level-badge">—</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Probability per class -->
+          <div class="section-title">
+            <div class="section-title-icon">📈</div>
+            Probabilitas per Kelas
+          </div>
+
+          <div class="prob-chart">
+            <div class="prob-item">
+              <span class="prob-label">Arabika</span>
+              <div class="prob-bar-track">
+                <div id="prob-arabika" class="prob-bar-fill" style="width:0%; background:#f59e0b;"></div>
+              </div>
+              <span id="prob-val-arabika" class="prob-value">0%</span>
+            </div>
+            <div class="prob-item">
+              <span class="prob-label">Liberika</span>
+              <div class="prob-bar-track">
+                <div id="prob-liberika" class="prob-bar-fill" style="width:0%; background:#22c55e;"></div>
+              </div>
+              <span id="prob-val-liberika" class="prob-value">0%</span>
+            </div>
+            <div class="prob-item">
+              <span class="prob-label">Robusta</span>
+              <div class="prob-bar-track">
+                <div id="prob-robusta" class="prob-bar-fill" style="width:0%; background:#8b5cf6;"></div>
+              </div>
+              <span id="prob-val-robusta" class="prob-value">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Right: Coffee Info ── -->
+      <div>
+        <!-- Description -->
+        <div class="glass-card" style="margin-bottom: 20px;">
+          <div class="section-title">
+            <div class="section-title-icon">📖</div>
+            Deskripsi
+          </div>
+          <p id="result-description" style="color:var(--text-secondary); font-size:0.92rem; line-height:1.75;">
+            —
+          </p>
+        </div>
+
+        <!-- Specs -->
+        <div class="glass-card">
+          <div class="section-title">
+            <div class="section-title-icon">🔬</div>
+            Karakteristik
+          </div>
+
+          <div class="info-grid" style="grid-template-columns: 1fr; gap:10px;">
+            <div class="info-item">
+              <div class="info-item-label">🌍 Asal Daerah</div>
+              <div id="info-origin" class="info-item-value">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">⚡ Kadar Kafein</div>
+              <div id="info-kafein" class="info-item-value">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">🌸 Aroma</div>
+              <div id="info-aroma" class="info-item-value">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">👅 Rasa</div>
+              <div id="info-rasa" class="info-item-value">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">🍋 Keasaman</div>
+              <div id="info-keasaman" class="info-item-value">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">💪 Body</div>
+              <div id="info-body" class="info-item-value">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">☕ Metode Seduh</div>
+              <div id="info-seduh" class="info-item-value">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display:flex; gap:12px; justify-content:center; margin-top:32px; flex-wrap:wrap;">
+      <a href="/klasifikasi" class="btn btn-primary" style="width:auto; margin-top:0;">
+        🔄 Klasifikasi Lagi
+      </a>
+      <a href="/about" class="btn btn-outline" style="margin-top:0;">
+        📚 Pelajari Lebih Lanjut
+      </a>
+    </div>
+
+  </div><!-- /main-content -->
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>
+      <strong>KopiVision</strong> · Klasifikasi Jenis Biji Kopi Berbasis Flask<br/>
+      CNN MobileNetV2 · CRISP-DM · Universitas Gunadarma 2026<br/>
+      <span style="font-size:0.75rem; opacity:0.6;">Adis Koswara · 50422086</span>
+    </p>
+  </footer>
+
+</div><!-- /page-wrapper -->
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  // Hide no-preview if image is available
+  window.addEventListener('DOMContentLoaded', () => {
+    const img = document.getElementById('result-preview-img');
+    const noPreview = document.getElementById('no-preview');
+    if (img && img.src && img.src !== window.location.href) {
+      img.addEventListener('load', () => {
+        if (noPreview) noPreview.style.display = 'none';
+      });
+    }
+  });
+</script>
+</body>
+</html>

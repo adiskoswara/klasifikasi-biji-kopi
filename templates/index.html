@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KopiVision — Klasifikasi Jenis Biji Kopi</title>
+  <meta name="description"
+    content="Sistem klasifikasi citra biji kopi berbasis AI menggunakan CNN MobileNetV2. Identifikasi jenis biji kopi Arabika, Liberika, dan Robusta secara otomatis." />
+  <meta name="keywords"
+    content="klasifikasi biji kopi, CNN, MobileNetV2, Flask, deep learning, Arabika, Liberika, Robusta" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+</head>
+
+<body>
+
+
+
+  <!-- ── Loading Overlay ── -->
+  <div id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Memproses gambar...</p>
+  </div>
+
+  <!-- ── Navbar ── -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <span class="nav-brand-icon">☕</span>
+      <span class="nav-brand-text">KopiVision</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/">Dashboard</a></li>
+      <li><a href="/klasifikasi" class="active">Mulai Klasifikasi</a></li>
+      <li><a href="/about">Informasi Kopi</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Page Content ── -->
+  <div class="page-wrapper">
+
+    <!-- Hero -->
+    <section class="hero">
+      <span class="hero-badge">⚡ CNN MobileNetV2 · Transfer Learning</span>
+      <h1 class="hero-title">
+        Identifikasi <span class="highlight">Biji Kopi</span><br />dengan Kecerdasan Buatan
+      </h1>
+      <p class="hero-subtitle">
+        Unggah foto atau gunakan kamera untuk mengklasifikasikan jenis biji kopi
+        Arabika, Liberika, dan Robusta secara otomatis dan akurat.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-value">{{ stats.accuracy }}</div>
+          <div class="stat-label">Test Accuracy</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">3</div>
+          <div class="stat-label">Kelas Kopi</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ stats.total_samples }}</div>
+          <div class="stat-label">Total Citra</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+      <!-- Model Status Warning -->
+      <div id="model-status-banner" class="status-banner warning hidden">
+        ⚠️ Model belum dimuat. Jalankan <strong>train.ipynb</strong> terlebih dahulu untuk melatih model.
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="tab-container">
+        <button id="tab-upload" class="tab-btn active" onclick="switchTab('upload')">
+          <span class="tab-icon">📤</span>
+          Upload Foto
+        </button>
+        <button id="tab-camera" class="tab-btn" onclick="switchTab('camera')">
+          <span class="tab-icon">📷</span>
+          Kamera Langsung
+        </button>
+      </div>
+
+      <!-- ── Panel: Upload ── -->
+      <div id="panel-upload">
+        <div class="glass-card">
+          <div class="section-title">
+            <div class="section-title-icon">📤</div>
+            Unggah Foto Biji Kopi
+          </div>
+
+          <!-- Drop Area -->
+          <div id="upload-area" class="upload-area">
+            <span id="upload-icon" class="upload-icon">📤</span>
+            <div class="upload-title">Klik atau seret gambar ke sini</div>
+            <div class="upload-hint">Format yang didukung: JPG, JPEG, PNG, WEBP · Maks. 10MB</div>
+            <div class="upload-formats">
+              <span class="format-badge">JPG</span>
+              <span class="format-badge">JPEG</span>
+              <span class="format-badge">PNG</span>
+              <span class="format-badge">WEBP</span>
+            </div>
+          </div>
+
+          <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp" />
+
+          <!-- Preview -->
+          <div id="preview-container">
+            <img id="preview-image" src="" alt="Preview gambar biji kopi" />
+            <div class="preview-overlay">
+              <span id="preview-filename" class="preview-filename"></span>
+              <button id="btn-remove" class="btn-remove">✕ Hapus</button>
+            </div>
+          </div>
+
+          <!-- Classify Button -->
+          <button id="btn-classify" class="btn btn-primary" disabled>
+            <span class="btn-spinner"></span>
+            <span class="btn-text">🔍 Klasifikasi Sekarang</span>
+          </button>
+        </div>
+
+        <!-- Info Card -->
+        <div class="glass-card" style="margin-top: 20px;">
+          <div class="section-title">
+            <div class="section-title-icon">💡</div>
+            Tips Foto Terbaik
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-item-label">🔆 Pencahayaan</div>
+              <div class="info-item-value">Gunakan cahaya terang & merata</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">🎯 Fokus</div>
+              <div class="info-item-value">Pastikan biji kopi terlihat jelas</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">📐 Sudut</div>
+              <div class="info-item-value">Ambil dari atas atau sudut 45°</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">🌿 Latar</div>
+              <div class="info-item-value">Latar polos lebih direkomendasikan</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Panel: Camera ── -->
+      <div id="panel-camera" class="hidden">
+        <div class="glass-card">
+          <div class="section-title">
+            <div class="section-title-icon">📷</div>
+            Deteksi Kamera Real-Time
+          </div>
+
+          <div class="camera-container">
+            <video id="camera-video" autoplay muted playsinline></video>
+
+            <!-- Overlay (sebelum kamera aktif) -->
+            <div id="camera-overlay" class="camera-overlay">
+              <span style="font-size:3rem">📷</span>
+              <p class="camera-overlay-text">Klik tombol di bawah<br />untuk mengaktifkan kamera</p>
+            </div>
+
+            <!-- Scan Frame (saat kamera aktif) -->
+            <div id="scan-frame" class="scan-frame hidden">
+              <div class="scan-corner-bl"></div>
+              <div class="scan-corner-br"></div>
+              <div class="scan-line"></div>
+            </div>
+
+            <!-- Result Badge -->
+            <div id="camera-result-badge" class="camera-result-badge" style="display:none">
+              <div id="camera-result-class" class="camera-result-class">Mendeteksi...</div>
+              <div id="camera-result-confidence" class="camera-result-confidence"></div>
+            </div>
+          </div>
+
+          <!-- Camera Controls -->
+          <div style="display:flex; gap:12px; margin-top:16px; justify-content:center;">
+            <button id="btn-start-camera" class="btn btn-primary" style="width:auto; margin-top:0;">
+              📷 Aktifkan Kamera
+            </button>
+            <button id="btn-stop-camera" class="btn btn-secondary hidden" style="margin-top:0;">
+              ⏹ Hentikan
+            </button>
+          </div>
+
+          <p class="text-muted text-center mt-2" style="font-size:0.8rem;">
+            Kamera akan mendeteksi biji kopi secara otomatis setiap 1.5 detik
+          </p>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>
+        <strong>KopiVision</strong> · Klasifikasi Jenis Biji Kopi Berbasis Flask<br />
+        CNN MobileNetV2 · CRISP-DM · Universitas Gunadarma 2026<br />
+        <span style="font-size:0.75rem; opacity:0.6;">Adis Koswara · 50422086</span>
+      </p>
+    </footer>
+
+  </div><!-- /page-wrapper -->
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Informasi Biji Kopi — KopiVision</title>
+  <meta name="description" content="Katalog informasi lengkap tentang jenis biji kopi Arabika, Liberika, dan Robusta." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <span class="nav-brand-icon">☕</span>
+    <span class="nav-brand-text">KopiVision</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/klasifikasi">Mulai Klasifikasi</a></li>
+    <li><a href="/about" class="active">Informasi Kopi</a></li>
+  </ul>
+</nav>
+
+<!-- ── Page Content ── -->
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div class="about-header">
+    <span class="hero-badge">📚 Katalog Edukasi Kopi</span>
+    <h1>Mengenal <span style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Jenis Biji Kopi</span></h1>
+    <p>
+      Pelajari karakteristik lengkap tiga varietas biji kopi utama yang
+      digunakan dalam sistem klasifikasi KopiVision.
+    </p>
+  </div>
+
+  <!-- Coffee Cards -->
+  <div class="coffee-cards-grid">
+
+    {% for name, info in coffee_info.items() %}
+    <div class="coffee-card" id="card-{{ name.lower() }}">
+      <div class="coffee-card-header">
+        <div class="coffee-card-icon">{{ info.icon }}</div>
+        <div class="coffee-card-name">{{ name }}</div>
+        <div class="coffee-card-latin">{{ info.latin }}</div>
+      </div>
+
+      <div class="coffee-card-body">
+        <p class="coffee-card-desc">{{ info.description }}</p>
+
+        <div class="coffee-specs">
+          <div class="spec-row">
+            <span class="spec-icon">🌍</span>
+            <span class="spec-key">Asal</span>
+            <span class="spec-value">{{ info.origin }}</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-icon">⚡</span>
+            <span class="spec-key">Kafein</span>
+            <span class="spec-value">{{ info.kafein }}</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-icon">🌸</span>
+            <span class="spec-key">Aroma</span>
+            <span class="spec-value">{{ info.aroma }}</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-icon">👅</span>
+            <span class="spec-key">Rasa</span>
+            <span class="spec-value">{{ info.rasa }}</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-icon">🍋</span>
+            <span class="spec-key">Keasaman</span>
+            <span class="spec-value">{{ info.keasaman }}</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-icon">💪</span>
+            <span class="spec-key">Body</span>
+            <span class="spec-value">{{ info.body }}</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-icon">☕</span>
+            <span class="spec-key">Seduhan</span>
+            <span class="spec-value">{{ info.seduh }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="main-content" style="max-width: 900px; margin-bottom: 40px;">
+    <div class="glass-card">
+      <div class="section-title">
+        <div class="section-title-icon">📊</div>
+        Perbandingan Karakteristik
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--glass-border);">
+              <th style="text-align:left; padding:12px 16px; color:var(--text-muted); font-weight:600; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.5px;">Karakteristik</th>
+              <th style="text-align:center; padding:12px 16px; color:var(--color-amber);">☕ Arabika</th>
+              <th style="text-align:center; padding:12px 16px; color:#22c55e;">🌿 Liberika</th>
+              <th style="text-align:center; padding:12px 16px; color:#8b5cf6;">⚡ Robusta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set rows = [
+              ('Kadar Kafein', 'kafein'),
+              ('Keasaman', 'keasaman'),
+              ('Body', 'body'),
+              ('Asal Daerah', 'origin'),
+              ('Metode Seduh', 'seduh')
+            ] %}
+            {% for label, key in rows %}
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td style="padding:12px 16px; color:var(--text-secondary); font-weight:500;">{{ label }}</td>
+              {% for name in ['Arabika', 'Liberika', 'Robusta'] %}
+              <td style="padding:12px 16px; text-align:center; color:var(--text-primary);">
+                {{ coffee_info[name][key] }}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center; margin-top:32px;">
+      <a href="/klasifikasi" class="btn btn-primary" style="width:auto; margin-top:0;">
+        🔍 Coba Klasifikasi Sekarang
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>
+      <strong>KopiVision</strong> · Klasifikasi Jenis Biji Kopi Berbasis Flask<br/>
+      CNN MobileNetV2 · CRISP-DM · Universitas Gunadarma 2026<br/>
+      <span style="font-size:0.75rem; opacity:0.6;">Adis Koswara · 50422086</span>
+    </p>
+  </footer>
+
+</div><!-- /page-wrapper -->
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
