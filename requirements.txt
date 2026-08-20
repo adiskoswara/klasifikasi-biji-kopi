@@ -1,10 +1,11 @@
 flask
-tensorflow
+tensorflow-cpu
 keras
 numpy
 pillow
 scikit-learn
 matplotlib
 seaborn
-opencv-python
+opencv-python-headless
 werkzeug
+gunicorn
