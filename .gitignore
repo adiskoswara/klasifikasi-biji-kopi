@@ -39,3 +39,7 @@ Thumbs.db
 
 # Generated images from notebook
 notebooks/*.png
+
+# Cloned subfolder for Hugging Face
+klasifikasi-biji-kopi/
+
